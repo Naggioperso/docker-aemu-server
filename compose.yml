@@ -11,7 +11,6 @@ services:
     entrypoint: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
     ports:
       - "27313:27313"
-      - "27314:27314"
 
   aemu:
     build:
