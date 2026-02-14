@@ -1,8 +1,8 @@
 services:
   aemu_postoffice:
     build:
-        context: .
-        dockerfile: Dockerfile-postoffice
+        context: ./conf.d/aemu_postoffice/
+        dockerfile: Dockerfile
     image: ubuntu-w-nodejs:24.04
     restart: unless-stopped
     container_name: aemu_postoffice
@@ -10,20 +10,25 @@ services:
       - ./aemu_postoffice/server_njs:/data/aemu_postoffice/server_njs
     entrypoint: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
     ports:
-      - "27313:27313"
+      - "192.168.1.6:27313:27313"
 
   aemu:
     build:
-        context: .
-        dockerfile: Dockerfile-aemu
+        context: ./cond.d/aemu/
+        dockerfile: Dockerfile
     image: ubuntu-w-libsqlite3:24.04
     restart: unless-stopped
     container_name: aemu
     volumes:
       - ./aemu/dist_660_release/server:/data/aemu/server/
-    entrypoint: ["/data/aemu/server/pspnet_adhocctl_server"]
+      - ./aemu/dist_660_release/server/www:/var/www/
+      - ./apache2/sites-enabled:/etc/apache2/sites-enabled/
+    working_dir: /data/aemu/server/
+    command: ["/bin/sh", "-c", "service apache2 start && /data/aemu/server/pspnet_adhocctl_server"]
+      #entrypoint: ["tail", "-f", "/dev/null"]
     #entrypoint: ["/bin/sh", "-c", "apt update && apt install -y libsqlite3-0 && /data/aemu/server/pspnet_adhocctl_server"]
     ports:
-      - "27312:27312"
+      - "192.168.1.6:27312:27312"
+      - "192.168.1.6:80:80"
     depends_on:
       - aemu_postoffice
