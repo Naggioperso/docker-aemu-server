@@ -10,7 +10,7 @@ services:
       - ./aemu_postoffice/server_njs:/data/aemu_postoffice/server_njs
     entrypoint: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
     ports:
-      - "192.168.1.6:27313:27313"
+      - "27313:27313"
 
   aemu:
     build:
@@ -26,9 +26,8 @@ services:
     working_dir: /data/aemu/server/
     command: ["/bin/sh", "-c", "service apache2 start && /data/aemu/server/pspnet_adhocctl_server"]
       #entrypoint: ["tail", "-f", "/dev/null"]
-    #entrypoint: ["/bin/sh", "-c", "apt update && apt install -y libsqlite3-0 && /data/aemu/server/pspnet_adhocctl_server"]
     ports:
-      - "192.168.1.6:27312:27312"
-      - "192.168.1.6:80:80"
+      - "27312:27312"
+        #- "80:80"
     depends_on:
       - aemu_postoffice
