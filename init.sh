@@ -83,7 +83,7 @@ fi
 
 if [ "$DL_1" = "OK" ] && [ "$DL_2" = "OK" ]
 then
-    report_ok
+    report_ok > ./logs/init.log 2>&1
     read -p "Chose how to proceed (1,2):" option
     case $option in
         1)
@@ -101,6 +101,6 @@ then
             ;;
     esac
 else
-    report_error
+    report_error > ./logs/init.log 2>&1
     exit 1
 fi
