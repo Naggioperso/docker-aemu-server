@@ -1,13 +1,11 @@
 #!/bin/bash
 
 
-#Some colors for the output
+#Define colors for ease of use
 RED="\033[0;31m"
 GREEN="\033[0;32m"
 YELLOW="\033[0;33m"
 RESET_CLR="\033[0m"
-DL_ERROR="ERROR"
-DL_OK="OK"
 
 
 report_ok(){
@@ -54,7 +52,7 @@ bring_up(){
     fi
 
     # Bring-up finished
-    echo -e "${GREEN}Comlpeted!${RESET_CLR}"
+    echo -e "Comlpeted!"
 }
 
 
@@ -76,9 +74,9 @@ GET_POSTOFFICE_EXIT_CODE=$?
 if [ $GET_POSTOFFICE_EXIT_CODE != 0 ]
 then
     GET_POSTOFFICE_MSG="An error occurred during tha download of postoffice. Try to run the scritp 'get-postoffice.sh' again or download it manually.\nFor more details, check the logs './logs/get-postoffice.log'."
-    DL_1=${RED}$DL_ERROR${RESET_CLR}
+    DL_1="ERROR"
 else
-    DL_1=${GREEN}$DL_OK${RESET_CLR}
+    DL_1="OK"
 fi
 
 ./get-aemu.sh 2>&1 | tee ./logs/get-aemu.log
@@ -86,9 +84,9 @@ GET_AEMU_EXIT_CODE=$?
 if [ $GET_AEMU_EXIT_CODE != 0 ]
 then
     GET_AEMU_MSG="An error occurred during tha download of aemu. Try to run the scritp 'get-aemu.sh' again or download it manually.\nFor more details, check the logs './logs/get-aemu.log'."
-    DL_2=${RED}$DL_ERROR${RESET_CLR}
+    DL_2="ERROR"
 else
-    DL_2=${GREEN}$DL_OK${RESET_CLR}
+    DL_2="OK"
 fi
 
 
@@ -105,7 +103,7 @@ then
         2)
             echo -e "User chose option 2\nStaring the build process..." | tee -a ./logs/init.log
             bring_up 2>&1 | tee -a ./logs/bring-up.logs
-            echo -e "The bring-up is finished\n\nChanging the IP in the server.js file will only require the restart of the the webserver with 'docker compose restart websrv'. Before making further changes, I suggest you to make sure you understand the implications."
+            echo -e "The bring-up is finished\n\nChanging the IP in the server.js file will only require the restart of the the webserver with 'docker compose restart websrv'. Before making further changes, I suggest you to make sure you understand the implications." | tee -a ./logs/init.log
             exit 0
             ;;
         *)
