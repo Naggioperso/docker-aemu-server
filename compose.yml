@@ -1,33 +1,65 @@
 services:
   aemu_postoffice:
     build:
-        context: ./conf.d/aemu_postoffice/
-        dockerfile: Dockerfile
+      context: ./conf.d/aemu_postoffice/
+      dockerfile: Dockerfile
     image: ubuntu-w-nodejs:24.04
     restart: unless-stopped
     container_name: aemu_postoffice
     volumes:
       - ./aemu_postoffice/server_njs:/data/aemu_postoffice/server_njs
-    entrypoint: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
+    command: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
+    networks:
+      aemu_network:
+        ipv4_address: 172.20.0.11
     ports:
       - "27313:27313"
 
   aemu:
     build:
-        context: ./cond.d/aemu/
-        dockerfile: Dockerfile
+      context: ./conf.d/aemu/
+      dockerfile: Dockerfile
     image: ubuntu-w-libsqlite3:24.04
     restart: unless-stopped
     container_name: aemu
     volumes:
       - ./aemu/dist_660_release/server:/data/aemu/server/
-      - ./aemu/dist_660_release/server/www:/var/www/
-      - ./apache2/sites-enabled:/etc/apache2/sites-enabled/
     working_dir: /data/aemu/server/
-    command: ["/bin/sh", "-c", "service apache2 start && /data/aemu/server/pspnet_adhocctl_server"]
+    command: ["/bin/sh", "-c", "/data/aemu/server/pspnet_adhocctl_server"]
       #entrypoint: ["tail", "-f", "/dev/null"]
+    networks:
+      aemu_network:
+        ipv4_address: 172.20.0.12
     ports:
       - "27312:27312"
         #- "80:80"
     depends_on:
       - aemu_postoffice
+
+  websrv:
+    #build:
+      #context: ./conf.d/websrv/
+      #dockerfile: Dockerfile
+    image: ubuntu-w-nodejs:24.04
+    restart: unless-stopped
+    container_name: websrv
+    volumes:
+      - ./aemu/dist_660_release/server/www:/data/aemu/server/www
+    working_dir: /data/aemu/server/www/
+    command: ["node", "server.js"]
+    networks:
+      aemu_network:
+        ipv4_address: 172.20.0.13
+    ports:
+      - "8080:8080"
+      - "80:80"
+    depends_on:
+      - aemu_postoffice
+
+networks:
+  aemu_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
