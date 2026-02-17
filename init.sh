@@ -52,7 +52,7 @@ bring_up(){
     fi
 
     # Bring-up finished
-    echo -e "Comlpeted!"
+    echo -e "Completed!"
 }
 
 
@@ -102,13 +102,15 @@ then
             ;;
         2)
             echo -e "User chose option 2\nStaring the build process..." | tee -a ./logs/init.log
-            bring_up 2>&1 | tee -a ./logs/bring-up.logs
-            if [ $? != 0]
+            bring_up 2>&1 | tee -a ./logs/bring-up.log
+            if [ $? != 0 ]
             then
                 echo -e "ERROR: Something went wrong. Check the logs for more details" | tee -a ./logs/init.log
+                exit 1
             else
                 echo -e "The bring-up is finished\n\nChanging the IP in the server.js file will only require the restart of the the webserver with 'docker compose restart websrv'. Before making further changes, I suggest you to make sure you understand the implications." | tee -a ./logs/init.log
-            exit 0
+                exit 0
+            fi
             ;;
         *)
             echo "Choose between option 1 and 2."
