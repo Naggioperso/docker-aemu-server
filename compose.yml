@@ -52,7 +52,6 @@ services:
         ipv4_address: 172.20.0.13
     ports:
       - "8080:8080"
-      - "80:80"
     depends_on:
       - aemu_postoffice
 
