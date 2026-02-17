@@ -29,20 +29,22 @@ You can choose to build a docker image that you will use to host a room in two w
 
 ### Deploy using init.sh
 
-STEP 1: clone the repository and, from there, run the init.sh
+**STEP 1**: clone the repository and, from there, run the init.sh
 
 
-STEP 2 (optional but recommended): make the data from postoffice available by editing the file the server.js, changing the loopback address 127.0.0.1 with 172.20.0.11 (address of the postemu container if using the default configuration) and restarting the webserver container.
+**STEP 2** (optional but recommended): make the data from postoffice available by editing the file the server.js, changing the loopback address 127.0.0.1 with 172.20.0.11 (address of the postemu container if using the default configuration) and restarting the webserver container.
 
 
-STEP 3 (optional): remove unnecessary files (eg. all the client files for the PSP)
+**STEP 3** (optional): remove unnecessary files (eg. all the client files for the PSP)
+
 
 Note: in the future I'll release a version of the scripts that take care of the last 2 steps.
 
 
+
 ### Semiautomated deploy
 
-STEP 1: clone the repository and, from there, start by running:
+**STEP 1**: clone the repository and, from there, start by running:
 
 
 
@@ -59,10 +61,10 @@ AND
 
 ```
 
-STEP 2 (optional but recommend): edit the server.js file and change the loopback address 127.0.0.1 with 172.20.0.11 (assuming you are using the default compose.yml file)
+**STEP 2** (optional but recommend): edit the server.js file and change the loopback address 127.0.0.1 with 172.20.0.11 (assuming you are using the default compose.yml file)
 
 
-STEP 3: build the images and start the containers using:
+**STEP 3**: build the images and start the containers using:
 
 a. ignoring cache
 
@@ -82,4 +84,4 @@ docker compose up -d --build
 ```
 
 
-STEP 4 (optional): remove unnecessary files (eg. all the client files for the PSP)
+**STEP 4** (optional): remove unnecessary files (eg. all the client files for the PSP)
