@@ -29,7 +29,7 @@ $GET_AEMU_MSG\n
 Some errors were encountered. The process is going to stop as the requirements to run the containers might not be satisfied. Check the logs fix the issues and then run 'docker compose up -d --build' to start the process.\n\n
 ${YELLOW}!!! WARNING!!!${RESET_CLR}
 The webserver exposing the status page will run in it's own container to make it independent from the main components. The default webserver uses the localhost address (127.0.0.1) to fetch data for the status page, therefore, it will not work unless you edit the server.js, substituting the localhost with the IP of the container running the postoffice software."
-    
+
     sleep 2
 }
 
@@ -37,7 +37,7 @@ The webserver exposing the status page will run in it's own container to make it
 bring_up(){
     #Building the images
     echo "Starting to build the custom images\n"
-    if ! docker compose build
+    if ! docker compose build --no-cache
     then
         echo -e "An error occurred during the build of the images. Check the logs in ./logs/bring-up.logs"
         exit 1
