@@ -89,7 +89,7 @@ docker compose up -d --build
 
 ## Future plans
 
-This repository is now public because everything works and I feel pretty satisfied with the work. However, there are still some things that I want to change:
+This repository is now public because everything works and I feel pretty satisfied with what I did. However, there are still some things that I want to change:
 
 - Automate the IP change in server.js
 
