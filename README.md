@@ -85,3 +85,14 @@ docker compose up -d --build
 
 
 - **STEP 4** (optional): remove unnecessary files (eg. all the client files for the PSP)
+
+
+## Future plans
+
+This repository is now public because everything works and I feel pretty satisfied with the work. However, there are still some things that I want to change:
+
+- Automate the IP change in server.js
+
+- Automate the removal of unnecessary files and directories 
+
+- Add the configuration for a proxy server to expose the webserver in https
