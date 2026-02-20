@@ -13,7 +13,7 @@ Cmponents used:
 
 - Fully automated deploy with little manual changes needed (using the init.sh)
 
-- Semiautomated deeply with the use of get-aemu.sh and get-postoffice.sh and the compose.yml
+- Semiautomated deploy with the use of get-aemu.sh and get-postoffice.sh and the compose.yml
 
 
 ## How it works
@@ -26,8 +26,27 @@ You can choose to build a docker image that you will use to host a room in two w
 - **clone the repo and initialize manually**: if you prefer more controll over every single step of the process.
 
 
+## Requirements
 
-### Deploy using init.sh
+1. Run as root user unless you installed following ["Rootless mode"](https://docs.docker.com/engine/security/rootless/)
+2. the make sure that the required software is installed
+**DEB based**
+```
+apt install curl wget unzip jq
+```
+
+**RPM based**
+- Fedora, Oracle linux, AlmaLinux etc.
+```
+dnf install curl wget unzip jq
+```
+- SUSE/openSUSE
+```
+zypper in curl wget git jq unzip
+```
+
+
+## Deploy using init.sh
 
 - **STEP 1**: clone the repository and, from there, run the init.sh
 
@@ -42,23 +61,19 @@ Note: in the future I'll release a version of the scripts that take care of the 
 
 
 
-### Semiautomated deploy
+## Semiautomated deploy
 
 - **STEP 1**: clone the repository and, from there, start by running:
 
 
 
 ```
-
 ./get-postoffice.sh
-
 ```
 AND
 
 ```
-
 ./get-aemu.sh
-
 ```
 
 - **STEP 2** (optional but recommend): edit the server.js file and change the loopback address 127.0.0.1 with 172.20.0.11 (assuming you are using the default compose.yml file)
@@ -69,18 +84,16 @@ AND
 a. ignoring cache
 
 ```
-
 docker compose build --no-cache && \
 docker compose up -d
-
 ```
+
 OR
 
 b. using cache if available
 
 ```
 docker compose up -d --build
-
 ```
 
 
