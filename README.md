@@ -30,19 +30,20 @@ You can choose to build a docker image that you will use to host a room in two w
 
 1. Run as root user unless you installed following ["Rootless mode"](https://docs.docker.com/engine/security/rootless/)
 2. Make sure that the required software is installed
+   
 **DEB based**
 ```
-apt install curl wget unzip jq
+apt install curl wget git unzip jq
 ```
 
 **RPM based**
 - Fedora, Oracle linux, AlmaLinux etc.
 ```
-dnf install curl wget unzip jq
+dnf install curl wget git unzip jq
 ```
 - SUSE/openSUSE
 ```
-zypper in curl wget git jq unzip
+zypper in curl wget git unzip jq
 ```
 
 
