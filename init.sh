@@ -1,4 +1,8 @@
 #!/bin/bash
+set -o pipefail
+
+export ARCH=$(uname -m)
+export COMPOSE_PROFILES=$ARCH
 
 
 #Define colors for ease of use
@@ -11,11 +15,11 @@ RESET_CLR="\033[0m"
 report_ok(){
     echo -e "
 Postoffice download status: $DL_1
-Aemu download status: $DL_2\n
+
 ${YELLOW}!!! WARNING!!!${RESET_CLR}
-The webserver is running in it's own container to make it independent from the main components. The default webserver uses the localhost address (127.0.0.1) to fetch data for the status page, therefore, it will not work unless you edit the server.js, substituting the localhost with the IP of the container running the postoffice software. You can choose to:\n
-\t1. Stop now, customize the configurations to your likings and build the containers later\n
-\t2. Continue with the default configurations and apply the customizations later.\n"
+Make sure you customized the compose.yml according to your needs. You can choose to:\n
+\t1. Stop now, customize the configurations and build the containers later\n
+\t2. Continue with the current configurations.\n"
 
     sleep 5
 }
@@ -23,12 +27,12 @@ The webserver is running in it's own container to make it independent from the m
 report_error(){
     echo -e "
 Postofffice download status: $DL_1
+
 $GET_POSTOFFICE_MSG\n
-Aemu download status: $DL_2
 $GET_AEMU_MSG\n
-Some errors were encountered. The process is going to stop as the requirements to run the containers might not be satisfied. Check the logs fix the issues and then run 'docker compose up -d --build' to start the process.\n\n
+Some errors were encountered. The process is going to stop as the requirements to run the containers might not be satisfied. Check the logs fix the issues and then run 'ARCH=\$(uname -m) COMPOSE_PROFILES=\$(uname -m) docker compose up -d --build' to start the process.\n\n
 ${YELLOW}!!! WARNING!!!${RESET_CLR}
-The webserver exposing the status page will run in it's own container to make it independent from the main components. The default webserver uses the localhost address (127.0.0.1) to fetch data for the status page, therefore, it will not work unless you edit the server.js, substituting the localhost with the IP of the container running the postoffice software."
+Remember to customize the compose.yml depending on your need."
 
     sleep 2
 }
@@ -36,23 +40,23 @@ The webserver exposing the status page will run in it's own container to make it
 
 bring_up(){
     #Building the images
-    echo "Starting to build the custom images\n"
+    echo -e "Starting the build process. Detected architecture: ${ARCH}"
     if ! docker compose build --no-cache
     then
-        echo -e "An error occurred during the build of the images. Check the logs in ./logs/bring-up.logs"
+        echo -e "An error occurred during the build. Check the logs in ./logs/bring-up.log"
         exit 1
     fi
 
     #Staring the containers
-    echo "Starting the containers\n"
+    echo -e "Starting the containers\n"
     if ! docker compose up -d
     then
-        echo -e "An error occurred during the start of the containers. Check the logs in ./logs/bring-up.logs"
+        echo -e "An error occurred while starting the services. Check the logs in ./logs/bring-up.log"
         exit 1
     fi
 
     # Bring-up finished
-    echo -e "Completed!"
+    echo -e "${GREEN}Completed!${RESET_CLR}"
 }
 
 
@@ -73,30 +77,20 @@ check_logdir 2>&1 | tee -a ./logs/init.log
 GET_POSTOFFICE_EXIT_CODE=$?
 if [ $GET_POSTOFFICE_EXIT_CODE != 0 ]
 then
-    GET_POSTOFFICE_MSG="An error occurred during tha download of postoffice. Try to run the scritp 'get-postoffice.sh' again or download it manually.\nFor more details, check the logs './logs/get-postoffice.log'."
+    GET_POSTOFFICE_MSG="An error occurred while downloading aemu_postoffice. Try to run the script 'get-postoffice.sh' again or download it manually.\nFor more details, check the logs './logs/get-postoffice.log'."
     DL_1="ERROR"
 else
     DL_1="OK"
 fi
 
-./get-aemu.sh 2>&1 | tee ./logs/get-aemu.log
-GET_AEMU_EXIT_CODE=$?
-if [ $GET_AEMU_EXIT_CODE != 0 ]
-then
-    GET_AEMU_MSG="An error occurred during tha download of aemu. Try to run the scritp 'get-aemu.sh' again or download it manually.\nFor more details, check the logs './logs/get-aemu.log'."
-    DL_2="ERROR"
-else
-    DL_2="OK"
-fi
 
-
-if [ "$DL_1" = "OK" ] && [ "$DL_2" = "OK" ]
+if [ "$DL_1" = "OK" ]
 then
-    report_ok 2>&1 | tee ./logs/init.log
+    report_ok 2>&1 | tee -a ./logs/init.log
     read -p "Chose how to proceed (1,2):" option
     case $option in
         1)
-            echo "User chose option 1\nWhen you're ready, run the following command:\n\t'docker compose up -d --build'" | tee -a ./logs/init.log
+            echo -e "User chose option 1\nWhen you're ready, run the following command:\n\t'ARCH=\$(uname -m) COMPOSE_PROFILES=\$(uname -m) docker compose up -d --build'" | tee -a ./logs/init.log
             sleep 1
             exit 0
             ;;
@@ -108,7 +102,7 @@ then
                 echo -e "ERROR: Something went wrong. Check the logs for more details" | tee -a ./logs/init.log
                 exit 1
             else
-                echo -e "The bring-up is finished\n\nChanging the IP in the server.js file will only require the restart of the the webserver with 'docker compose restart websrv'. Before making further changes, I suggest you to make sure you understand the implications." | tee -a ./logs/init.log
+                echo -e "The bring-up is finished\n\nBefore making changes to the files used by aemu_postoffice, I suggest you to make sure you understand the implications." | tee -a ./logs/init.log
                 exit 0
             fi
             ;;

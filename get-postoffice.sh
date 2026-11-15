@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 OWNER="Kethen"
 REPO="aemu_postoffice"
@@ -18,5 +19,6 @@ FILENAME=$(basename "$DOWNLOAD_URL")
 
 echo "Downloading $FILENAME"
 wget -O "$FILENAME" "$DOWNLOAD_URL"
-unzip -d aemu_postoffice "$FILENAME"
+unzip "$FILENAME"
 rm -v "$FILENAME"
+chmod +x ./server_cpp/aemu_postoffice

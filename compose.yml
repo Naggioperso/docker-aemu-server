@@ -1,59 +1,54 @@
+# Shared conf between x86 and ARM
+x-aemu-common: &aemu-common
+  build:
+    context: ./conf.d/aemu_postoffice/
+    dockerfile: Dockerfile.${ARCH:-x86_64}
+  image: aemu_postoffice:${ARCH:-x86_64}
+  restart: unless-stopped
+  container_name: aemu_postoffice
+  command: [ "/app/aemu_postoffice" ]
+  networks:
+    aemu_network:
+      ipv4_address: 172.20.0.11
+  ports:
+    - "27312:27312/udp"
+    - "27312:27312/tcp"
+    - "27313:27313/udp"
+    - "27313:27313/tcp"
+    - "8888:8888/tcp"
+
 services:
-  aemu_postoffice:
-    build:
-      context: ./conf.d/aemu_postoffice/
-      dockerfile: Dockerfile
-    image: ubuntu-w-nodejs:24.04
-    restart: unless-stopped
-    container_name: aemu_postoffice
+  # Specific for x86
+  aemu_postoffice_x86:
+    <<: *aemu-common
+    profiles: [ "x86_64" ]
     volumes:
-      - ./aemu_postoffice/server_njs:/data/aemu_postoffice/server_njs
-    command: ["node", "/data/aemu_postoffice/server_njs/aemu_postoffice.js"]
-    networks:
-      aemu_network:
-        ipv4_address: 172.20.0.11
-    ports:
-      - "27313:27313"
+      - ./server_cpp/http_assets:/app/http_assets
+      - ./server_cpp/aemu_postoffice:/app/aemu_postoffice
+      - ./server_cpp/config.json:/app/config.json
+      - ./server_cpp/game_db.json:/app/game_db.json
 
-  aemu:
-    build:
-      context: ./conf.d/aemu/
-      dockerfile: Dockerfile
-    image: ubuntu-w-libsqlite3:24.04
-    restart: unless-stopped
-    container_name: aemu
+  # Specific for ARM. Executable compiled in the image
+  aemu_postoffice_arm:
+    <<: *aemu-common
+    profiles: [ "aarch64" ]
     volumes:
-      - ./aemu/dist_660_release/server:/data/aemu/server/
-    working_dir: /data/aemu/server/
-    command: ["/bin/sh", "-c", "/data/aemu/server/pspnet_adhocctl_server"]
-      #entrypoint: ["tail", "-f", "/dev/null"]
-    networks:
-      aemu_network:
-        ipv4_address: 172.20.0.12
-    ports:
-      - "27312:27312"
-        #- "80:80"
-    depends_on:
-      - aemu_postoffice
-
-  websrv:
-    #build:
-      #context: ./conf.d/websrv/
-      #dockerfile: Dockerfile
-    image: ubuntu-w-nodejs:24.04
-    restart: unless-stopped
-    container_name: websrv
-    volumes:
-      - ./aemu/dist_660_release/server/www:/data/aemu/server/www
-    working_dir: /data/aemu/server/www/
-    command: ["node", "server.js"]
-    networks:
-      aemu_network:
-        ipv4_address: 172.20.0.13
-    ports:
-      - "8080:8080"
-    depends_on:
-      - aemu_postoffice
+      - ./server_cpp/http_assets:/app/http_assets
+      - ./server_cpp/config.json:/app/config.json
+      - ./server_cpp/game_db.json:/app/game_db.json
+  #
+  # # If you need a proxy, decomment the following and change it accordin to your need
+  # proxy:
+  #   image: nginx:latest
+  #   restart: unless-stopped
+  #   container_name: proxy
+  #   volumes:
+  #     - conf:conf # path to the config. Add 2 more for the cert and the key if you use https
+  #   networks:
+  #     aemu_network:
+  #       ipv4_address: 172.20.0.10
+  #   ports:
+  #     - "443:443" # change according to your need
 
 networks:
   aemu_network:

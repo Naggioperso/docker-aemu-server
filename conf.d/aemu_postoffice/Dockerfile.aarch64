@@ -1,0 +1,42 @@
+ARG UBUNTU_RELEASE=26.04
+
+# Prepare the env for the build
+FROM ubuntu:$UBUNTU_RELEASE AS builder-prep
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt full-upgrade -y && \
+    apt install -y --no-install-recommends \
+    git \
+    build-essential \
+    ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
+# Starts the build
+FROM builder-prep AS builder
+
+WORKDIR /src
+
+RUN git clone --recurse-submodules https://github.com/kethen/aemu_postoffice . && \
+    cd server_cpp && \
+    bash build_linux.sh
+
+
+# Done with the build. Prepare the final container
+FROM ubuntu:$UBUNTU_RELEASE AS final
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt full-upgrade -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# RUN mkdir /app/http_assets
+
+COPY --from=builder /src/server_cpp/aemu_postoffice /app/aemu_postoffice
+# both of the following are not necessary but they are here as a satety net
+COPY --from=builder /src/server_cpp/game_db.json /app/
+COPY --from=builder /src/server_cpp/config.json /app/
+# COPY --from=builder /src/server_cpp/http_assets/* /app/http_assets/
