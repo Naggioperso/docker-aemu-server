@@ -18,10 +18,10 @@ Postoffice download status: $DL_1
 
 ${YELLOW}!!! WARNING!!!${RESET_CLR}
 Make sure you customized the compose.yml according to your needs. You can choose to:\n
-\t1. Stop now, customize the configurations and build the containers later\n
+\t1. Stop now, customize the configurations to your likings and build the containers later\n
 \t2. Continue with the current configurations.\n"
 
-    sleep 5
+    sleep 3
 }
 
 report_error(){
