@@ -1,112 +1,64 @@
 # Repository used to build the container hosting the relay server and the status web page
 
-Cmponents used:
-
-- [aemu_postoffice](https://github.com/Kethen/aemu_postoffice) by GitHub user [Kethen](https://github.com/Kethen) as an ad-hoc relay server - PDP flow
-- [aemu](https://github.com/Kethen/aemu) by GitHub user [Kethen](https://github.com/Kethen) for the peer discovery via the adhoctl server - PTP flow
+Components used:
+- [aemu_postoffice](https://github.com/Kethen/aemu_postoffice) by [Kethen](https://github.com/Kethen). The new C++ version will be used.
 
 ## Features
-
-- Automated download of the release tagged as latest (get-aemu.sh and get-postoffice.sh)
-
-- Separated containers for each service (eg. you don't want to restart the main relay server components just to apply some changes to the status webpage)
-
-- Fully automated deploy with little manual changes needed (using the init.sh)
-
-- Semiautomated deploy with the use of get-aemu.sh and get-postoffice.sh and the compose.yml
-
+- Support for both x86 and ARM architectures: if ARM architecture is detected, the process will take care of cloning [aemu_postoffice](https://github.com/Kethen/aemu_postoffice) and its dependencies, and building the executable.
+- Automated download of the release tagged as latest via `get-postoffice.sh`.
+- Fully automated deployment with few manual changes needed via `init.sh`.
+- Semi-automated deployment using `get-postoffice.sh` and `compose.yml`.
 
 ## How it works
-
-Clone the repository or download the zip.
-You can choose to build a docker image that you will use to host a room in two way:
-
-- **clone the repo and run `./init.sh`**: it's going to create log files, making troubleshooting easier. It assumes that some requisites can be satisfied (eg. a docker network with the CIDR 172.20.0.0/24 can be created)
-
-- **clone the repo and initialize manually**: if you prefer more controll over every single step of the process.
-
+Clone the repository or download the zip. You can customize it a little bit before running the scripts so that it satisfies your requirements. You can choose to build a Docker image to host the server in two ways:
+- **Clone the repo and run `./init.sh`**: This creates log files, making troubleshooting easier. It assumes that certain prerequisites are satisfied, such as the default Docker network being available. Change it in `compose.yml` if it is not.
+- **Clone the repo and initialize manually**: Choose this option if you prefer more control over every single step of the process.
 
 ## Requirements
+1. Run as the root user unless you installed Docker following ["Rootless mode"](https://docs.docker.com/engine/security/rootless/).
+2. Make sure that the required software is installed:
 
-1. Run as root user unless you installed following ["Rootless mode"](https://docs.docker.com/engine/security/rootless/)
-2. Make sure that the required software is installed
-   
-**DEB based**
-```
+**DEB-based**
+```bash
 apt install curl wget git unzip jq
 ```
 
-**RPM based**
-- Fedora, Oracle linux, AlmaLinux etc.
-```
+**RPM-based**
+- Fedora, Oracle Linux, AlmaLinux, etc.
+```bash
 dnf install curl wget git unzip jq
 ```
 - SUSE/openSUSE
-```
+```bash
 zypper in curl wget git unzip jq
 ```
 
-
 ## Deploy using init.sh
+- **STEP 1**: Clone the repository or download the zip. Once you have cloned the repo or extracted the zip, move inside the folder and run `./init.sh`.
+- **STEP 2** (optional): Remove unnecessary files (e.g., all the client files for the PSP).
+- **STEP 3** (optional): Configure SSL to make the web page reachable via HTTPS.
+- **STEP 4** (optional): Customize the values of `config.json` in the `server_cpp` folder. **EDIT ONLY IF YOU KNOW WHAT YOU'RE DOING.**
 
-- **STEP 1**: clone the repository and, from there, run the init.sh
-
-
-- **STEP 2** (optional but recommended): make the data from postoffice available by editing the file the server.js, changing the loopback address 127.0.0.1 with 172.20.0.11 (address of the postemu container if using the default configuration) and restarting the webserver container.
-
-
-- **STEP 3** (optional): remove unnecessary files (eg. all the client files for the PSP)
-
-
-Note: in the future I'll release a version of the scripts that take care of the last 2 steps.
-
-
-
-## Semiautomated deploy
-
-- **STEP 1**: clone the repository and, from there, start by running:
-
-
-
-```
+## Semi-automated deploy
+- **STEP 1**: Clone the repository and, from there, start by running:
+```bash
 ./get-postoffice.sh
 ```
-AND
+- **STEP 2**: Build the images and start the containers using:
 
-```
-./get-aemu.sh
-```
-
-- **STEP 2** (optional but recommend): edit the server.js file and change the loopback address 127.0.0.1 with 172.20.0.11 (assuming you are using the default compose.yml file)
-
-
-- **STEP 3**: build the images and start the containers using:
-
-a. ignoring cache
-
-```
-docker compose build --no-cache && \
-docker compose up -d
-```
-
-OR
-
-b. using cache if available
-
-```
-docker compose up -d --build
-```
-
-
-- **STEP 4** (optional): remove unnecessary files (eg. all the client files for the PSP)
-
-
-## Future plans
-
-This repository is now public because everything works and I feel pretty satisfied with what I did. However, there are still some things that I want to change:
-
-- Automate the IP change in server.js
-
-- Automate the removal of unnecessary files and directories 
-
-- Add the configuration for a proxy server to expose the webserver in https
+  a. Ignoring cache (recommended)
+  ```bash
+  export ARCH=\$(uname -m)
+  export COMPOSE_PROFILES=\$ARCH
+  docker compose build --no-cache && \
+  docker compose up -d
+  ```
+  OR
+  
+  b. Using cache if available
+  ```bash
+  docker compose up -d --build
+  ```
+- **STEP 3** (optional): Remove unnecessary files (e.g., all the client files for the PSP).
+- **STEP 4** (optional): Configure SSL to make the web page reachable via HTTPS.
+- **STEP 5** (optional): Customize the values of `config.json` in the `server_cpp` folder. **EDIT ONLY IF YOU KNOW WHAT YOU'RE DOING.**
